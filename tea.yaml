@@ -1,19 +1,41 @@
-# https://tea.xyz/what-is-this-file
----
-version: 1.0.0
-codeOwners:
-  - '0x93f148568Fc643B6c790a10c05E1815cd6952142'
-  - '0xa9b35c063F0c139e1C965f61876Ff32f68d28232'
-  - '0xB59B39768Cd5EBDDb97E4E08733395E425252412'
-  - '0x17ad19f2A0706D152f32302A8D498fF9222E3E87'
-  - '0x8B76615aaD1f9fb549cC2C2fDe434E59fA26dcBb'
-  - '0xE068734631b134D74E4595E0091169771E42bAB5'
-  - '0x9B8F6b98af6716aE77FE64c74FB060bdde272cC9'
-  - '0xA33e5E88Fdfc8B0bd18a330F8AbCF047179e6AE4'
-  - '0x16FE84c3Bf902bA2587846Cee9fe4ba6fB6A3581'
-  - '0xCa9EE3fBabD5220EA4Dcc263bB68CC01f52b025a'
-  - '0xA14f0Dc77e6fCbe21Fda8945ee57c44091808ab8'
-  - '0x49D1FBA0CB8EbAFa3a15128275Ac7536EF5Ae558'
-  - '0x199020Ca24d1c55dbbE81F9FA026935D0aA1eFC5'
-  - '0x1B6f98D68525612Ed19CF565F2af7Ef84Cc20dC1'
-quorum: 1
+sudo tee /etc/systemd/system/tanssi.service > /dev/null << EOF
+[Unit]
+Description="Tanssi systemd service"
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10
+User=tanssi_service
+SyslogIdentifier=tanssi
+SyslogFacility=local7
+KillSignal=SIGHUP
+ExecStart=/var/lib/tanssi-data/tanssi-node \
+--chain=dancebox \
+--name=sychonix \
+--sync=warp \
+--base-path=/var/lib/tanssi-data/para \
+--state-pruning=2000 \
+--blocks-pruning=2000 \
+--collator \
+--telemetry-url='wss://telemetry.polkadot.io/submit/ 0' \
+--database paritydb \
+-- \
+--name=tanssi-app \
+--base-path=/var/lib/tanssi-data/container \
+--telemetry-url='wss://telemetry.polkadot.io/submit/ 0' \
+-- \
+--chain=westend_moonbase_relay_testnet \
+--name=sychonix \
+--sync=fast \
+--base-path=/var/lib/tanssi-data/relay \
+--state-pruning=2000 \
+--blocks-pruning=2000 \
+--telemetry-url='wss://telemetry.polkadot.io/submit/ 0' \
+--database paritydb \
+
+[Install]
+WantedBy=multi-user.target
+EOF
